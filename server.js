@@ -55,6 +55,22 @@ app.put("/users/:id", (req, res) => {
     }
 });
 
+app.get("/users/:id/edit", (req, res) => {
+    const user = users.find((u) => u.id === parseInt(req.params.id));
+    res.render("edit", { user });
+});
+
+app.post("/users/:id", (req, res) => {
+    const { name, email } = req.body;
+    const user = users.find ((u) => u.id === parseInt(req.params.id));
+    if (user) {
+        user.name = name;
+        user.email = email;
+        
+    }
+    res.redirect("/users");
+})
+
 app.delete("/users/:id", (req, res) => {
     const userIndex = users.findIndex((u) => u.id === parseInt(req.params.id));
     if (userIndex !== -1) {
