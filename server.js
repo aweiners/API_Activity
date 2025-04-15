@@ -9,9 +9,9 @@ app.use(express.static("public"));
 app.use(express.json());
 
 const users = [
-    { id: 1, name: "John Wayne"},
-    { id: 2, name: "John Dajao"},
-    { id: 3, name: "Johnny Test"},
+    { id: 1, name: "John Wayne", email: "johnwayne@gmail.com" },
+    { id: 2, name: "John Dajao", email: "jdajao@gmail.com" },
+    { id: 3, name: "Johnny Tet", email: "Jtest@gmail.com"},
 ];
 
 app.get("/", (req, res) => {
@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/users", (req, res) => {
-    res.json("index", { users });
+    res.render("index", { users });
 });
 
 app.get("/users/new", (req, res) => {
@@ -38,12 +38,10 @@ app.get("/users/:id", (req, res) => {
 });
 
 app.post("/users", (req, res) => {
-    const newUser = {
-        id: Date.now(),
-        name: req.body.name,    
-    }
-    users.push(newUser); 
-    res.status(201).json(newUser);
+    const { name, email } = req.body;
+    const newUser = {id: Date.now(), name, email};
+    users.push(newUser);
+    res.redirect("/users");
 });
 
 app.put("/users/:id", (req, res) => {
