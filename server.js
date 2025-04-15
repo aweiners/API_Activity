@@ -8,7 +8,7 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.json());
 
-const users = [
+let users = [
     { id: 1, name: "John Wayne", email: "johnwayne@gmail.com" },
     { id: 2, name: "John Dajao", email: "jdajao@gmail.com" },
     { id: 3, name: "Johnny Tet", email: "Jtest@gmail.com"},
@@ -80,6 +80,11 @@ app.delete("/users/:id", (req, res) => {
         res.status(404).send("User not found");
     }
 });
+
+app.post("/users/:id/delete", (req, res) => {
+    users = users.filter((u) => u.id != req.params.id);
+    res.redirect('/users'); 
+})
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
