@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const db = require('./db.js');
 
 app.use(express.urlencoded({ extended: true }));
 app.set("view enging")
@@ -8,17 +9,13 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.json());
 
-let users = [
-    { id: 1, name: "John Wayne", email: "johnwayne@gmail.com" },
-    { id: 2, name: "John Dajao", email: "jdajao@gmail.com" },
-    { id: 3, name: "Johnny Tet", email: "Jtest@gmail.com"},
-];
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
 
 app.get("/users", (req, res) => {
+    const users = db.prepare("SELECT * FROM users").all();
     res.render("index", { users });
 });
 
@@ -39,7 +36,7 @@ app.get("/users/:id", (req, res) => {
 
 app.post("/users", (req, res) => {
     const { name, email } = req.body;
-    const newUser = {id: Date.now(), name, email};
+    db.prepare("INSERT INTO users (name, email) VALUES (?, ?)").run(name, email);
     users.push(newUser);
     res.redirect("/users");
 });
