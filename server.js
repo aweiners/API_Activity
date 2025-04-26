@@ -4,11 +4,9 @@ const port = 3000;
 const db = require('./db.js');
 
 app.use(express.urlencoded({ extended: true }));
-app.set("view enging")
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.json());
-
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
@@ -23,10 +21,8 @@ app.get("/users/new", (req, res) => {
     res.render("new");
 });
 
-
 app.get("/users/:id", (req, res) => {
-    const userId = parseInt(req.params.id, 10);
-    const user = users.find(u => u.id === userId);
+    const user = db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id);
     if (user) {
         res.json(user);
     } else {
@@ -37,51 +33,24 @@ app.get("/users/:id", (req, res) => {
 app.post("/users", (req, res) => {
     const { name, email } = req.body;
     db.prepare("INSERT INTO users (name, email) VALUES (?, ?)").run(name, email);
-    users.push(newUser);
     res.redirect("/users");
 });
 
-app.put("/users/:id", (req, res) => {
-    const userId = users.find((u) => u.id === parseInt(req.params.id));
-    if (userId) {
-        userId.id = req.body.id;
-        userId.name = req.body.name;
-        res.json(userId);
-    } else {
-        res.status(404).send("User not found");
-    }
-});
-
 app.get("/users/:id/edit", (req, res) => {
-    const user = users.find((u) => u.id === parseInt(req.params.id));
+    const user = db.prepare("SELECT * FROM users WHERE id = ?").get(req.params.id);
     res.render("edit", { user });
 });
 
 app.post("/users/:id", (req, res) => {
     const { name, email } = req.body;
-    const user = users.find ((u) => u.id === parseInt(req.params.id));
-    if (user) {
-        user.name = name;
-        user.email = email;
-        
-    }
+    db.prepare("UPDATE users SET name = ?, email = ? WHERE id = ?").run(name, email, req.params.id);
     res.redirect("/users");
-})
-
-app.delete("/users/:id", (req, res) => {
-    const userIndex = users.findIndex((u) => u.id === parseInt(req.params.id));
-    if (userIndex !== -1) {
-        users.splice(userIndex, 1);
-        res.status(204).send();
-    } else {
-        res.status(404).send("User not found");
-    }
 });
 
 app.post("/users/:id/delete", (req, res) => {
-    users = users.filter((u) => u.id != req.params.id);
-    res.redirect('/users'); 
-})
+    db.prepare("DELETE FROM users WHERE id = ?").run(req.params.id);
+    res.redirect('/users');
+});
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
